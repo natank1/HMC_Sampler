@@ -11,6 +11,7 @@ class sampler:
     def __init__(self,sample_size, potential_struct=None,init_position=None, init_velocity= None,position_dim =None, step_size=0.05,num_steps_in_leap=20,acceptance_thr =None,duplicate_samples=False):
 
         self.step_size =step_size
+        self.init_velocity =None
         self.half_step = 0.5*self.step_size
         self.sample_size =sample_size
         self.num_steps_in_leap = num_steps_in_leap
@@ -26,13 +27,15 @@ class sampler:
 
         if init_velocity is None and init_position is None and (position_dim>0):
             self.pos_dim = position_dim
-            self.init_velocity = np.random.multivariate_normal(np.zeros(self.pos_dim),np.eye(self.pos_dim,self.pos_dim))
+            # self.init_velocity = np.random.multivariate_normal(np.zeros(self.pos_dim),np.eye(self.pos_dim,self.pos_dim))
             self.init_position = np.random.multivariate_normal(np.zeros(self.pos_dim),np.eye(self.pos_dim, self.pos_dim))
         if init_velocity is None and init_position is not None :
                 self.pos_dim = len(init_position)
-                self.init_velocity = np.random.multivariate_normal(np.zeros(self.pos_dim), np.eye(self.pos_dim, self.pos_dim))
+                self.init_position =init_position
+                # self.init_velocity = np.random.multivariate_normal(np.zeros(self.pos_dim), np.eye(self.pos_dim, self.pos_dim))
         if init_velocity is not None and init_position is  None:
             self.pos_dim = len(init_velocity)
+            self.init_velocity = init_velocity
             self.init_position = np.random.multivariate_normal(np.zeros(self.pos_dim),
                                                                np.eye(self.pos_dim, self.pos_dim))
 
@@ -51,11 +54,13 @@ class sampler:
 
     def main_hmc_loop(self):
         bad_decline_cntr = 0
-        sample_array= np.array([np.random.rand(self.pos_dim)],dtype=np.float64)
+        sample_array= np.array([self.init_position],dtype=np.float64)
         for sample in xrange (self.sample_size):
-            rand_init_velcotiy = np.random.multivariate_normal(np.zeros(self.pos_dim),np.eye(self.pos_dim, self.pos_dim))
-
-            tmp_tensor = np.concatenate((sample_array[-1],rand_init_velcotiy),0)
+            if sample==0 and self.init_velocity is not None:
+                tmp_tensor = np.concatenate((sample_array[-1], self.init_velocity), 0)
+            else :
+                rand_init_velcotiy = np.random.multivariate_normal(np.zeros(self.pos_dim),np.eye(self.pos_dim, self.pos_dim))
+                tmp_tensor = np.concatenate((sample_array[-1],rand_init_velcotiy),0)
 
             phase_tensor= Variable(torch.FloatTensor(tmp_tensor),requires_grad=True)
 
