@@ -1,10 +1,10 @@
 import torch
-import binary_potential
-from default_potential import default_potential as df_poten
+# import binary_potential
+from default_potential import vanilla_potential as df_poten
 
 
 
-class Hamiltonian :
+class hamilton_operator :
 
     def __init__(self, potential_struct=None):
 
@@ -45,12 +45,3 @@ class Hamiltonian :
                 ham_val = pot_val + kinetic_val
 
             return ham_val
-
-# bb =Hamiltonian()
-#
-# from torch.autograd import Variable
-# xx= Variable(torch.FloatTensor([3.0,3.0]),requires_grad=True)
-# pp = Variable(torch.FloatTensor([1.0,1.0]),requires_grad=True)
-# print "fff"
-# print bb.hamiltonian_measure(xx,pp,2)
-# print "ggg"

@@ -1,12 +1,12 @@
 import torch
 import numpy as np
-from  Hamiltonian import Hamiltonian
+from  Hamiltonian import hamilton_operator as hamilton
 from torch.autograd import Variable
-from default_potential import default_potential as df_poten
-from binary_potential import   Binary_potnetial as bp_poten
+# from default_potential import vanilla_potential as df_poten
+# from binary_potential import   Binary_potnetial as bp_poten
 
 
-class HMC_sampler:
+class sampler:
 
     def __init__(self,sample_size, potential_struct=None,init_position=None, init_velocity= None,position_dim =None, step_size=0.05,num_steps_in_leap=20,acceptance_thr =None,duplicate_samples=False):
 
@@ -17,9 +17,9 @@ class HMC_sampler:
         self.acceptance_thr = acceptance_thr
         self.duplicate_samples = duplicate_samples
         if potential_struct is None :
-            self.hamiltonian_obj = Hamiltonian()
+            self.hamiltonian_obj = hamilton()
         else :
-            self.hamiltonian_obj = Hamiltonian(potential_struct)
+            self.hamiltonian_obj = hamilton(potential_struct)
         if init_velocity is None and  init_position is None and ((position_dim is None) or (position_dim<=0)  ):
             print "Neither veloctiy nor postion and nor the diemsnion has been given. Bye Bye! "
             exit(222)
@@ -109,41 +109,3 @@ class HMC_sampler:
             termination_val= phase_tensor[:self.pos_dim]
         return termination_val.data.numpy()
 
-A = Variable(torch.FloatTensor([[2, .0, .0, -0.], [0., 2.0, 0., 0.], [0., 0., 2., 0.], [0.0, 0., 0, 2.]]),
-                 requires_grad=False)
-
-b = Variable(torch.FloatTensor([1.0, 1.0, 1.0, 1.0]), requires_grad=False)
-
-
-# hmc =HMC_sampler(sample_size=40,position_dim=4,duplicate_samples=True,acceptance_thr=.99)
-hmc =HMC_sampler(sample_size=40,position_dim=4,potential_struct=bp_poten(weight_matrix=A,bias_array=b),acceptance_thr=0.0)
-
-vv,a =hmc.main_hmc_loop()
-print a
-print "now"
-print len(vv)
-for v in vv :
-    print v
-exit(16)
-yy= torch.FloatTensor([1.0,10])
-
-print yy.numpy()
-y1=Variable(yy,requires_grad=True)
-print y1
-print y1.data.numpy()
-print "lll"
-exit(2323)
-sample_array= np.array(np.zeros(20),dtype=np.float64)
-
-print sample_array
-sample_array=np.vstack((sample_array,np.ones(20)))
-sample_array=np.vstack((sample_array,np.ones(20)))
-
-print "hhh"
-print sample_array[0]
-print "yyy"
-print type(sample_array[1])
-print np.array_equal(sample_array[0],sample_array[2])
-print sample_array[0]==sample_array[2]
-sample_array=np.vstack((sample_array,2*np.ones(20)))
-print sample_array[-1]
