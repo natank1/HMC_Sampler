@@ -8,9 +8,10 @@ from torch.autograd import Variable
 
 class sampler:
 
-    def __init__(self,sample_size, potential_struct=None,init_position=None, init_velocity= None,position_dim =None, step_size=0.05,num_steps_in_leap=20,acceptance_thr =None,duplicate_samples=False):
+    def __init__(self,sample_size, potential_struct=None,init_position=None, init_velocity= None,position_dim =None, step_size=0.05,num_steps_in_leap=20,acceptance_thr =None,duplicate_samples=False,output_tensor = False):
 
         self.step_size =step_size
+        self.output_tensor = output_tensor
         self.init_velocity =None
         self.half_step = 0.5*self.step_size
         self.sample_size =sample_size
@@ -73,6 +74,8 @@ class sampler:
 
         if  bad_decline_cntr > 100:
             print "Look out: Many Metropolis Hastings declines. Sample is smaller than the required"
+        if self.output_tensor:
+            sample_array =torch.FloatTensor(sample_array)
         return sample_array, bad_decline_cntr
 
 
@@ -112,5 +115,6 @@ class sampler:
             termination_val= tmp_array[:self.pos_dim]
         else:
             termination_val= phase_tensor[:self.pos_dim]
-        return termination_val.data.numpy()
 
+
+        return termination_val.data.numpy()
